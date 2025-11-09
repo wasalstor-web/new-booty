@@ -1,0 +1,223 @@
+{
+  "name": "nexus-n8n-workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "webhookId": "telegram-bot-webhook",
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": {
+          "messageValues": [
+            {
+              "role": "system",
+              "message": "أنت Nexus، نظام ذكاء اصطناعي ذاتي التطوير. مهمتك تحليل أوامر المستخدم وتحديد النية:\n\n1. إذا كان الأمر محادثة عادية: رد بنص عادي\n2. إذا كان الأمر تطويري (مثل: أضف عقدة، عدل workflow، حسّن النظام): رد بـ JSON بهذا الشكل:\n{\n  \"action\": \"update_workflow\",\n  \"workflow_id\": \"workflow-id-here\",\n  \"changes\": {\n    \"nodes\": [...],\n    \"connections\": {...}\n  },\n  \"description\": \"وصف التعديل\"\n}\n\nكن ذكياً في التمييز. أي طلب يتعلق بتعديل أو تحسين النظام نفسه يجب أن يكون JSON."
+            },
+            {
+              "role": "user",
+              "message": "={{ $json.message.text }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "nexus-ai-brain",
+      "name": "Nexus AI Brain (OpenAI)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.3,
+      "position": [450, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-creds",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.message }}",
+              "operation": "startsWith",
+              "value2": "{"
+            }
+          ]
+        }
+      },
+      "id": "is-dev-command",
+      "name": "Is it a Dev Command? (IF)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Clean and extract pure JSON from OpenAI response\nconst response = $input.first().json.message;\n\n// Try to extract JSON if wrapped in markdown or text\nlet jsonData;\ntry {\n  // Remove markdown code blocks if present\n  let cleaned = response.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  \n  // Find first { and last }\n  const start = cleaned.indexOf('{');\n  const end = cleaned.lastIndexOf('}');\n  \n  if (start !== -1 && end !== -1) {\n    cleaned = cleaned.substring(start, end + 1);\n  }\n  \n  jsonData = JSON.parse(cleaned);\n} catch (error) {\n  throw new Error('Failed to parse development command: ' + error.message);\n}\n\nreturn { json: jsonData };"
+      },
+      "id": "code-cleaner",
+      "name": "Code (Cleaner)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $env.N8N_PROTOCOL }}://{{ $env.N8N_HOST }}:{{ $env.N8N_PORT }}/api/v1/workflows/{{ $json.workflow_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $env.N8N_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "nodes",
+              "value": "={{ JSON.stringify($json.changes.nodes) }}"
+            },
+            {
+              "name": "connections",
+              "value": "={{ JSON.stringify($json.changes.connections) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "execute-self-dev",
+      "name": "Execute Self-Development (HTTP Request)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "✅ تم التطوير بنجاح!\n\n📝 التعديل: {{ $('Code (Cleaner)').item.json.description }}\n\n🔄 النظام الآن محدّث ويعمل بالإعدادات الجديدة."
+      },
+      "id": "send-confirmation",
+      "name": "Send Confirmation (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [1250, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "={{ $('Nexus AI Brain (OpenAI)').item.json.message }}"
+      },
+      "id": "send-normal-reply",
+      "name": "Send Normal Reply (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [850, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Nexus AI Brain (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nexus AI Brain (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Is it a Dev Command? (IF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is it a Dev Command? (IF)": {
+      "main": [
+        [
+          {
+            "node": "Code (Cleaner)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Normal Reply (Telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (Cleaner)": {
+      "main": [
+        [
+          {
+            "node": "Execute Self-Development (HTTP Request)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Self-Development (HTTP Request)": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation (Telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "id": "nexus-self-dev-workflow",
+  "name": "🧠 Nexus - المطور الذاتي",
+  "tags": []
+}
