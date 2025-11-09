@@ -42,7 +42,10 @@ class N8nOrchestrator {
       // Step 4: Wait for n8n to be ready
       await this.waitForN8n();
 
-      // Step 5: Setup initial workflows
+      // Step 5: Open n8n in browser
+      await this.openInBrowser();
+
+      // Step 6: Setup initial workflows
       await this.setupInitialWorkflows();
 
       console.log('✅ n8n infrastructure built successfully!');
@@ -169,6 +172,33 @@ class N8nOrchestrator {
     }
 
     throw new Error('n8n failed to start within timeout');
+  }
+
+  /**
+   * Open n8n in browser
+   */
+  async openInBrowser() {
+    const url = `${this.config.protocol}://${this.config.host}:${this.config.port}`;
+    console.log(`🌐 Opening n8n in browser: ${url}`);
+
+    const { exec } = require('child_process');
+    const platform = process.platform;
+
+    try {
+      if (platform === 'darwin') {
+        // macOS
+        exec(`open ${url}`);
+      } else if (platform === 'win32') {
+        // Windows
+        exec(`start ${url}`);
+      } else {
+        // Linux
+        exec(`xdg-open ${url} || gnome-open ${url} || kde-open ${url}`);
+      }
+      console.log('✅ Browser opened!');
+    } catch (error) {
+      console.log(`⚠️  Could not open browser automatically. Please open: ${url}`);
+    }
   }
 
   /**

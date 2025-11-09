@@ -3,19 +3,57 @@ const axios = require('axios');
 /**
  * n8n Client - للتواصل مع n8n API
  * Handles all communication with n8n API
+ * Supports both local and external n8n instances (Hostinger VPS)
  */
 class N8nClient {
   constructor(config) {
-    this.baseURL = `${config.protocol}://${config.host}:${config.port}/api/v1`;
+    // دعم n8n خارجي
+    if (config.isExternal && config.externalUrl) {
+      this.baseURL = `${config.externalUrl}/api/v1`;
+      this.webhookBaseURL = config.externalUrl;
+    } else {
+      this.baseURL = `${config.protocol}://${config.host}:${config.port}/api/v1`;
+      this.webhookBaseURL = `${config.protocol}://${config.host}:${config.port}`;
+    }
+    
     this.apiKey = config.apiKey;
+    this.isExternal = config.isExternal || false;
     
     this.client = axios.create({
       baseURL: this.baseURL,
       headers: {
         'X-N8N-API-KEY': this.apiKey,
         'Content-Type': 'application/json'
-      }
+      },
+      timeout: 10000
     });
+  }
+
+  /**
+   * Test connection to n8n
+   */
+  async testConnection() {
+    try {
+      const response = await this.client.get('/workflows', { params: { limit: 1 } });
+      return true;
+    } catch (error) {
+      console.error('n8n connection test failed:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Get n8n URL for webhooks
+   */
+  getWebhookURL(path) {
+    return `${this.webhookBaseURL}/webhook/${path}`;
+  }
+
+  /**
+   * Get n8n UI URL
+   */
+  getUIURL() {
+    return this.webhookBaseURL;
   }
 
   /**

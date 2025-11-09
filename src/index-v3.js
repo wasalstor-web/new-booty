@@ -4,6 +4,7 @@ require('dotenv').config();
 const PluginManager = require('./core/pluginManager');
 const DomainAdapter = require('./core/domainAdapter');
 const TrainingDataCollector = require('./core/trainingDataCollector');
+const N8nIntegrationBridge = require('./core/n8nIntegrationBridge');
 
 // Orchestrators
 const ModelOrchestrator = require('./orchestrator/modelOrchestrator');
@@ -110,8 +111,32 @@ const n8nClient = new N8nClient({
   host: process.env.N8N_HOST || 'localhost',
   port: process.env.N8N_PORT || 5678,
   protocol: process.env.N8N_PROTOCOL || 'http',
-  apiKey: process.env.N8N_API_KEY
+  apiKey: process.env.N8N_API_KEY,
+  // دعم n8n خارجي على Hostinger VPS
+  externalUrl: process.env.N8N_URL || null,
+  isExternal: process.env.N8N_EXTERNAL === 'true'
 });
+
+// التحقق من اتصال n8n
+(async () => {
+  try {
+    const isConnected = await n8nClient.testConnection();
+    if (isConnected) {
+      console.log('✅ Connected to n8n successfully!');
+      if (process.env.N8N_EXTERNAL === 'true') {
+        console.log(`🌐 Using external n8n: ${process.env.N8N_URL || process.env.N8N_HOST}`);
+      }
+    }
+  } catch (error) {
+    console.log('⚠️  Could not connect to n8n. Will try to start it...');
+    if (process.env.N8N_EXTERNAL !== 'true') {
+      // فقط إذا لم يكن خارجي
+      console.log('💡 Run: bash scripts/start-n8n.sh');
+    } else {
+      console.log('💡 Check your n8n VPS connection and API key');
+    }
+  }
+})();
 
 const aiEngine = new AIEngine({
   apiKey: process.env.OPENAI_API_KEY,
@@ -142,6 +167,94 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
   );
   console.log('✅ Telegram Bot initialized');
 }
+
+// Initialize N8N Integration Bridge
+const n8nBridge = new N8nIntegrationBridge(
+  n8nClient,
+  modelOrchestrator,
+  pluginManager,
+  domainAdapter,
+  trainingCollector
+);
+
+// Auto-connect all components to n8n after startup
+setTimeout(async () => {
+  if (await n8nClient.testConnection()) {
+    console.log('\n🔗 Connecting all components to n8n...');
+    try {
+      await n8nBridge.initialize();
+      console.log('✅ All components connected to n8n!');
+      console.log(`🌐 n8n UI: ${n8nClient.getUIURL()}`);
+      
+      // إرسال إشعار للتليجرام عند الانتهاء
+      if (telegramBot && process.env.ADMIN_TELEGRAM_ID) {
+        const message = `
+🎉 *Nexus v3.0 جاهز!*
+
+✅ النظام اشتغل بنجاح
+✅ تم الربط مع n8n
+🌐 n8n: ${n8nClient.getUIURL()}
+
+📊 *المكونات المتصلة:*
+🤖 ${modelOrchestrator.getAllModels().length} نموذج AI
+🔌 ${pluginManager.getEnabledPlugins().length} إضافة
+🌍 ${domainAdapter.getAllDomains().length} مجال
+🔗 ${n8nBridge.getIntegrations().length} تكامل مع n8n
+
+⚡ *Workflows التطوير الذاتي:*
+• تحليل وتحسين (كل 6 ساعات)
+• إنشاء workflows جديدة
+• مراقبة الأداء (كل 30 دقيقة)
+
+🚀 النظام يعمل ويتطور تلقائياً!
+
+استخدم /help لعرض الأوامر المتاحة
+        `;
+        
+        try {
+          await telegramBot.bot.sendMessage(
+            process.env.ADMIN_TELEGRAM_ID,
+            message,
+            { parse_mode: 'Markdown' }
+          );
+          console.log('✅ Setup notification sent to Telegram');
+        } catch (error) {
+          console.error('⚠️  Could not send Telegram notification:', error.message);
+        }
+      }
+    } catch (error) {
+      console.error('⚠️  Some components failed to connect:', error.message);
+      
+      // إرسال إشعار بالخطأ
+      if (telegramBot && process.env.ADMIN_TELEGRAM_ID) {
+        try {
+          await telegramBot.bot.sendMessage(
+            process.env.ADMIN_TELEGRAM_ID,
+            `⚠️ *تحذير*\n\nNexus بدأ لكن بعض المكونات فشلت في الاتصال:\n\`\`\`\n${error.message}\n\`\`\``,
+            { parse_mode: 'Markdown' }
+          );
+        } catch (err) {
+          console.error('Failed to send error notification');
+        }
+      }
+    }
+  } else {
+    console.log('⚠️  n8n not available. Skipping integration.');
+    
+    // إشعار بعدم توفر n8n
+    if (telegramBot && process.env.ADMIN_TELEGRAM_ID) {
+      try {
+        await telegramBot.bot.sendMessage(
+          process.env.ADMIN_TELEGRAM_ID,
+          '⚠️ *تحذير*\n\nNexus بدأ لكن لم يتمكن من الاتصال بـ n8n.\n\nتأكد من:\n• n8n يعمل\n• N8N_API_KEY صحيح\n• N8N_URL صحيح',
+          { parse_mode: 'Markdown' }
+        );
+      } catch (err) {
+        console.error('Failed to send warning');
+      }
+    }
+  }
+}, 5000);
 
 // ============================================
 // API ENDPOINTS
@@ -426,6 +539,40 @@ app.post('/api/rollback', async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
+});
+
+// N8N Integration endpoints
+app.get('/api/n8n/integrations', (req, res) => {
+  res.json({
+    success: true,
+    integrations: n8nBridge.getIntegrations(),
+    n8nUrl: n8nClient.getUIURL()
+  });
+});
+
+app.post('/api/n8n/connect-all', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    permissionManager.requirePermission(userId, '*');
+    
+    await n8nBridge.initialize();
+    
+    res.json({ 
+      success: true, 
+      message: 'All components connected to n8n',
+      integrations: n8nBridge.getIntegrations()
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/n8n/ui-url', (req, res) => {
+  res.json({
+    success: true,
+    url: n8nClient.getUIURL(),
+    isExternal: n8nClient.isExternal
+  });
 });
 
 const PORT = process.env.PORT || 3000;
