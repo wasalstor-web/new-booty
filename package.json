@@ -1,9 +1,10 @@
 {
-  "name": "nexus-infrastructure",
+  "name": "n8n-ai-automation",
   "version": "3.0.0",
-  "description": "نظام بنية تحتية ذكية ذاتية التطوير - Self-building intelligent infrastructure system",
+  "description": "نظام أتمتة ذكي بالذكاء الاصطناعي - AI-Powered Automation System with n8n",
   "main": "src/index-v3.js",
   "scripts": {
+    "setup": "bash setup.sh",
     "start": "node src/index.js",
     "start:v3": "node src/index-v3.js",
     "dev": "nodemon src/index-v3.js",
@@ -12,7 +13,8 @@
     "n8n:logs": "docker-compose logs -f",
     "n8n:build": "node -e \"require('./src/orchestrator/n8nOrchestrator').buildN8n()\"",
     "deploy": "bash scripts/deploy-hostinger.sh",
-    "export:training": "node scripts/export-training-data.js"
+    "export:training": "node scripts/export-training-data.js",
+    "test": "node test-integration.js"
   },
   "keywords": [
     "n8n",

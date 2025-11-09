@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Nexus n8n Startup Script
-# سكريبت بدء n8n
+# AI Automation System n8n Startup Script
+# سكريبت بدء n8n لنظام الأتمتة الذكي
 
-echo "🚀 Starting Nexus n8n..."
+echo "🚀 Starting n8n for AI Automation..."
 
 # Check if docker-compose is available
 if command -v docker-compose &> /dev/null; then
@@ -13,15 +13,15 @@ elif command -v docker &> /dev/null; then
     echo "✅ Using docker run"
     
     # Create network if it doesn't exist
-    docker network create nexus-network 2>/dev/null || true
+    docker network create n8n-ai-network 2>/dev/null || true
     
     # Remove old container if exists
-    docker rm -f nexus-n8n 2>/dev/null || true
+    docker rm -f n8n-automation 2>/dev/null || true
     
     # Start n8n container
     docker run -d \
-      --name nexus-n8n \
-      --network nexus-network \
+      --name n8n-automation \
+      --network n8n-ai-network \
       --restart always \
       -p 5678:5678 \
       -e N8N_BASIC_AUTH_ACTIVE=true \
@@ -41,7 +41,7 @@ elif command -v docker &> /dev/null; then
       n8nio/n8n:latest
     
     echo "✅ n8n container started"
-    echo "📊 Container name: nexus-n8n"
+    echo "📊 Container name: n8n-automation"
     echo "🌐 URL: http://localhost:5678"
     echo "👤 Username: admin"
     echo "🔑 Password: admin123"
@@ -71,12 +71,13 @@ done
 echo ""
 
 # Check if n8n is running
-if docker ps | grep -q nexus-n8n; then
+if docker ps | grep -q n8n-automation; then
     echo "✅ n8n is running!"
     echo ""
     echo "╔═══════════════════════════════════════════════════════════╗"
     echo "║                                                           ║"
     echo "║   🎉 n8n Started Successfully!                           ║"
+    echo "║      (للنظام الذكي على Hostinger)                       ║"
     echo "║                                                           ║"
     echo "╚═══════════════════════════════════════════════════════════╝"
     echo ""
@@ -84,8 +85,8 @@ if docker ps | grep -q nexus-n8n; then
     echo "👤 Username: admin"
     echo "🔑 Password: admin123"
     echo ""
-    echo "📝 To view logs: docker logs -f nexus-n8n"
-    echo "🛑 To stop: docker stop nexus-n8n"
+    echo "📝 To view logs: docker logs -f n8n-automation"
+    echo "🛑 To stop: docker stop n8n-automation"
     echo ""
     
     # Open n8n in browser automatically
@@ -116,6 +117,6 @@ if docker ps | grep -q nexus-n8n; then
     echo "✅ Browser opened!"
 else
     echo "❌ n8n failed to start"
-    echo "📝 Check logs: docker logs nexus-n8n"
+    echo "📝 Check logs: docker logs n8n-automation"
     exit 1
 fi
