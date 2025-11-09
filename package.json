@@ -1,22 +1,30 @@
 {
-  "name": "n8n-ai-automation",
-  "version": "1.0.0",
-  "description": "نظام أتمتة متكامل مع n8n ونظام AI ذكي - Integrated automation system with n8n and intelligent AI",
-  "main": "src/index.js",
+  "name": "nexus-infrastructure",
+  "version": "3.0.0",
+  "description": "نظام بنية تحتية ذكية ذاتية التطوير - Self-building intelligent infrastructure system",
+  "main": "src/index-v3.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start:v3": "node src/index-v3.js",
+    "dev": "nodemon src/index-v3.js",
     "n8n:start": "docker-compose up -d",
     "n8n:stop": "docker-compose down",
     "n8n:logs": "docker-compose logs -f",
-    "deploy": "bash scripts/deploy-hostinger.sh"
+    "n8n:build": "node -e \"require('./src/orchestrator/n8nOrchestrator').buildN8n()\"",
+    "deploy": "bash scripts/deploy-hostinger.sh",
+    "export:training": "node scripts/export-training-data.js"
   },
   "keywords": [
     "n8n",
     "automation",
     "ai",
     "workflow",
-    "self-learning"
+    "self-learning",
+    "infrastructure",
+    "orchestration",
+    "plugin-system",
+    "domain-adapter",
+    "model-orchestration"
   ],
   "author": "wasalstor-web",
   "license": "MIT",
@@ -29,5 +37,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
