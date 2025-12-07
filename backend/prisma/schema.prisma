@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  password      String
+  tier          String    @default("free") // free, basic, pro, enterprise
+  credits       Int       @default(1000)
+  apiKey        String?   @unique
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  subscriptions Subscription[]
+  activities     Activity[]
+  invoices       Invoice[]
+  apiKeys        ApiKey[]
+  
+  @@index([email])
+  @@index([tier])
+}
+
+model Subscription {
+  id            String   @id @default(uuid())
+  userId        String
+  planId        String
+  status        String   // active, canceled, expired
+  currentPeriod DateTime
+  nextBilling   DateTime?
+  stripeId      String?  @unique
+  createdAt     DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String   // text_generation, image_generation, chat, etc.
+  metadata  Json?
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Invoice {
+  id          String   @id @default(uuid())
+  userId      String
+  amount      Float
+  currency    String   @default("USD")
+  status      String   // paid, pending, failed
+  stripeId    String?  @unique
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model ApiKey {
+  id        String   @id @default(uuid())
+  userId    String
+  key       String   @unique
+  name      String
+  lastUsed  DateTime?
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([key])
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String   // info, warn, error
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  
+  @@index([level])
+  @@index([createdAt])
+}

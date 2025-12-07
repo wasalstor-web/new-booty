@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_cmF0aW9uYWwtZ2FyZmlzaC0zMC5jbGVyay5hY2NvdW50cy5kZXYk
+        NEXT_PUBLIC_CLERK_SIGN_IN_URL: /sign-in
+        CLERK_SECRET_KEY: sk_test_SJAg3Rt1NM36sKpkK0cAJGIKfkjeybWOwyetIHUUX3
+    container_name: ai-platform-frontend
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=https://onlainee.space/api
+      - CLERK_SECRET_KEY=sk_test_SJAg3Rt1NM36sKpkK0cAJGIKfkjeybWOwyetIHUUX3
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_cmF0aW9uYWwtZ2FyZmlzaC0zMC5jbGVyay5hY2NvdW50cy5kZXYk
+      - NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+    networks:
+      - ai-network
+
+  # Backend API Service
+  backend:
+    build: ./backend
+    container_name: ai-platform-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/ai_platform
+      - NODE_ENV=production
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - /app/node_modules
+    networks:
+      - ai-network
+
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: ai-platform-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=ai_platform
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ai-network
+
+  # Redis for Caching and Rate Limiting
+  redis:
+    image: redis:7-alpine
+    container_name: ai-platform-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ai-platform-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - ai-network
+
+  # Certbot for SSL
+  certbot:
+    image: certbot/certbot
+    container_name: ai-platform-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  ai-network:
+    driver: bridge

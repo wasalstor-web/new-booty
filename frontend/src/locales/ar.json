@@ -1,0 +1,166 @@
+{
+  "Index": {
+    "meta_title": "قالب SaaS - القالب المثالي لبناء وتوسيع نطاق عملك بسهولة.",
+    "meta_description": "قالب صفحة هبوط مجاني ومفتوح المصدر لعملك في SaaS، مبني باستخدام React و TypeScript و Shadcn UI و Tailwind CSS."
+  },
+  "Navbar": {
+    "sign_in": "تسجيل الدخول",
+    "sign_up": "إنشاء حساب",
+    "product": "المنتج",
+    "docs": "المستندات",
+    "blog": "المدونة",
+    "community": "المجتمع",
+    "company": "الشركة"
+  },
+  "Hero": {
+    "follow_twitter": "تابعنا على تويتر",
+    "title": "القالب المثالي <important>لمشاريع SaaS</important> لبناء وتوسيع نطاق عملك بسهولة.",
+    "description": "قالب صفحة هبوط مجاني ومفتوح المصدر لعملك في SaaS، مبني باستخدام React و TypeScript و Shadcn UI و Tailwind CSS.",
+    "primary_button": "ابدأ الآن",
+    "secondary_button": "ادعمنا على GitHub"
+  },
+  "Sponsors": {
+    "title": "برعاية"
+  },
+  "Features": {
+    "section_subtitle": "المميزات",
+    "section_title": "أطلق العنان للإمكانات الكاملة لقالب SaaS",
+    "section_description": "قالب صفحة هبوط مجاني ومفتوح المصدر لعملك في SaaS، مبني باستخدام React و TypeScript و Shadcn UI و Tailwind CSS.",
+    "feature1_title": "Node.js",
+    "feature2_title": "React",
+    "feature3_title": "Tailwind CSS",
+    "feature4_title": "TypeScript",
+    "feature5_title": "Shadcn UI",
+    "feature6_title": "ESLint",
+    "feature_description": "قالب صفحة هبوط مجاني ومفتوح المصدر لعملك في SaaS، مبني باستخدام React و TypeScript و Shadcn UI و Tailwind CSS."
+  },
+  "Pricing": {
+    "section_subtitle": "الأسعار",
+    "section_title": "خطط أسعار مرنة تناسب الجميع",
+    "section_description": "اختر الخطة التي تناسب احتياجاتك.",
+    "button_text": "ابدأ الآن"
+  },
+  "PricingPlan": {
+    "free_plan_name": "مجاني",
+    "premium_plan_name": "بريميوم",
+    "enterprise_plan_name": "شركات",
+    "free_plan_description": "للأفراد",
+    "premium_plan_description": "للفرق الصغيرة",
+    "enterprise_plan_description": "للشركات الكبيرة",
+    "feature_team_member": "{number} أعضاء الفريق",
+    "feature_website": "{number} مواقع",
+    "feature_storage": "{number} جيجابايت تخزين",
+    "feature_transfer": "{number} تيرابايت نقل بيانات",
+    "feature_email_support": "دعم عبر البريد الإلكتروني",
+    "plan_interval_month": "شهر",
+    "plan_interval_year": "سنة",
+    "next_renew_date": "يتجدد اشتراكك في {date}"
+  },
+  "FAQ": {
+    "question": "سؤال شائع؟",
+    "answer": "إجابة السؤال الشائع."
+  },
+  "CTA": {
+    "title": "هل أنت مستعد؟",
+    "description": "ابدأ رحلتك معنا اليوم.",
+    "button_text": "ابدأ الآن"
+  },
+  "Footer": {
+    "product": "المنتج",
+    "docs": "المستندات",
+    "blog": "المدونة",
+    "community": "المجتمع",
+    "company": "الشركة",
+    "terms_of_service": "شروط الخدمة",
+    "privacy_policy": "سياسة الخصوصية",
+    "designed_by": "تصميم <author></author>."
+  },
+  "ProtectFallback": {
+    "not_enough_permission": "ليس لديك الصلاحيات الكافية للقيام بهذا الإجراء"
+  },
+  "SignIn": {
+    "meta_title": "تسجيل الدخول",
+    "meta_description": "سجل دخولك بسهولة."
+  },
+  "SignUp": {
+    "meta_title": "إنشاء حساب",
+    "meta_description": "أنشئ حسابك بسهولة."
+  },
+  "DashboardLayout": {
+    "home": "الرئيسية",
+    "todos": "المهام",
+    "members": "الأعضاء",
+    "billing": "الفوترة",
+    "settings": "الإعدادات"
+  },
+  "Dashboard": {
+    "meta_title": "لوحة التحكم",
+    "meta_description": "لوحة تحكم SaaS."
+  },
+  "DashboardIndex": {
+    "title_bar": "لوحة التحكم",
+    "title_bar_description": "مرحبًا بك في لوحة التحكم",
+    "message_state_title": "لنبدأ",
+    "message_state_description": "يمكنك تخصيص هذه الصفحة.",
+    "message_state_button": "زر",
+    "message_state_alternative": "نص بديل"
+  },
+  "UserProfile": {
+    "title_bar": "الملف الشخصي",
+    "title_bar_description": "إدارة ملفك الشخصي"
+  },
+  "OrganizationProfile": {
+    "title_bar": "إدارة المنظمة",
+    "title_bar_description": "إدارة منظمتك"
+  },
+  "Billing": {
+    "title_bar": "الفوترة",
+    "title_bar_description": "إدارة الفوترة والاشتراكات",
+    "current_section_title": "الخطة الحالية",
+    "current_section_description": "تعديل خطة الدفع",
+    "manage_subscription_button": "إدارة الاشتراك"
+  },
+  "BillingOptions": {
+    "current_plan": "الخطة الحالية",
+    "upgrade_plan": "ترقية"
+  },
+  "CheckoutConfirmation": {
+    "title_bar": "تأكيد الدفع",
+    "message_state_title": "تم الدفع بنجاح",
+    "message_state_description": "شكرًا لك!",
+    "message_state_button": "العودة للفوترة"
+  },
+  "DataTable": {
+    "no_results": "لا توجد نتائج."
+  },
+  "Todos": {
+    "title_bar": "قائمة المهام",
+    "title_bar_description": "إدارة مهامك",
+    "add_todo_button": "مهمة جديدة"
+  },
+  "TodoTableColumns": {
+    "open_menu": "فتح القائمة",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "title_header": "العنوان",
+    "message_header": "الرسالة",
+    "created_at_header": "تاريخ الإنشاء"
+  },
+  "AddTodo": {
+    "title_bar": "إضافة مهمة",
+    "add_todo_section_title": "إنشاء مهمة جديدة",
+    "add_todo_section_description": "املأ النموذج أدناه"
+  },
+  "EditTodo": {
+    "title_bar": "تعديل المهمة",
+    "edit_todo_section_title": "تعديل المهمة",
+    "edit_todo_section_description": "املأ النموذج أدناه"
+  },
+  "TodoForm": {
+    "title_label": "العنوان",
+    "title_description": "أدخل عنوانًا للمهمة.",
+    "message_title": "الرسالة",
+    "message_description": "أدخل تفاصيل المهمة.",
+    "submit_button": "إرسال"
+  }
+}
