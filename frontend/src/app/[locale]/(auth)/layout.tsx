@@ -1,6 +1,6 @@
 'use client';
 
-import { enUS, frFR } from '@clerk/localizations';
+import { arSA, enUS, frFR } from '@clerk/localizations';
 import { ClerkProvider } from '@clerk/nextjs';
 
 import { AppConfig } from '@/utils/AppConfig';
@@ -17,6 +17,8 @@ export default function AuthLayout(props: {
 
   if (props.params.locale === 'fr') {
     clerkLocale = frFR;
+  } else if (props.params.locale === 'ar') {
+    clerkLocale = arSA;
   }
 
   if (props.params.locale !== AppConfig.defaultLocale) {
