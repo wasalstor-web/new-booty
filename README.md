@@ -108,9 +108,17 @@ Access:
 
 ## 📚 Documentation
 
+### Main Documentation
+- **[README.md](./README.md)** - Project overview and quick start (this file)
+- **[QUICKSTART.md](./QUICKSTART.md)** - Quick start guide for development and deployment
 - **[Deployment Guide (English)](./DEPLOYMENT.md)** - Complete production deployment instructions
 - **[دليل النشر (العربية)](./DEPLOYMENT_AR.md)** - دليل شامل لنشر المشروع على الخادم
+- **[DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)** - Step-by-step deployment checklist
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Common issues and solutions
+
+### Additional Documentation
 - **[Frontend README](./frontend/README.md)** - Frontend-specific documentation
+- **[Scripts README](./scripts/README.md)** - Deployment scripts documentation
 
 ## 🛠️ Technology Stack
 
